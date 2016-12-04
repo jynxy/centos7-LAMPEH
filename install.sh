@@ -165,6 +165,7 @@ cat security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.con
 # our domain config
 mkdir /etc/httpd/conf.sites.d
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo Include conf/extra/httpd-ssl.conf >> /etc/httpd/conf/httpd.conf
 cat domains/8080-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
 # our performance config
