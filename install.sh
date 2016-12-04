@@ -49,13 +49,29 @@ cd nghttp2-1.3.4/
 autoreconf -i
 automake
 autoconf 
-env OPENSSL_CFLAGS="-I /usr/local/openssl/include" OPENSSL_LIBS="-L /usr/local/openssl/lib-lssl-lcrypto"
+env OPENSSL_CFLAGS="-I /usr/local/openssl/include" OPENSSL_LIBS="-L /usr/local/openssl/lib -lssl -lcrypto"
 ./configure 
 make 
 make install
 
-ccho /usr/local/lib> /etc/ld.so.conf.d/usr-local-lib.conf 
+echo /usr/local/lib> /etc/ld.so.conf.d/usr-local-lib.conf 
 ldconfig
+
+#install latest curl
+cd /usr/local/src/
+wget https://curl.haxx.se/download/curl-7.51.0.tar.gz
+tar -xvzf curl-7.51.0.tar.gz
+cd curl-7.51.0/
+./configure \
+--prefix=/opt/curl-ssl \
+--with-ssl=/usr/local/openssl \
+--enable-http \
+--enable-ftp \
+LDFLAGS=-L/usr/local/openssl/lib \
+CPPFLAGS=-I/usr/local/openssl/include \
+--with-nghttp2=/usr/local
+make
+make install
 
 #install apr
 cd /usr/local/src/ 
