@@ -131,6 +131,8 @@ cat varnish/varnish.params > /etc/varnish/varnish.params
 # Varnish can listen
 sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
 
+sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /etc/httpd/conf/httpd.conf
+
 # PHP
 # The first pool
 cat php/www.conf > /etc/php-fpm.d/www.conf
