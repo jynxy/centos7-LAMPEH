@@ -5,6 +5,7 @@ yum -y update
 
 #install dev tools
 yum -y groupinstall "Development Tools"
+yum -y groupinstall "base" 
 
 #install needed files
 yum install -y \
@@ -25,7 +26,78 @@ yum install -y \
     tar \
     epel-release \
     nano \
-    httpd
+    zlib-devel \
+    pcre-devel \
+    libev-devel
+    
+#install openssl 1.0.2j
+cd /usr/local/src/
+wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz
+tar -xvzf openssl-1.0.2j.tar.gz
+cd openssl-1.0.2j/
+./config --prefix=/usr/local/openssl shared zlib
+make && make test && make install
+
+echo /usr/local/openssl/lib> /etc/ld.so.conf.d/openssl102d.conf 
+ldconfig
+
+# install hngttp2
+cd /usr/local/src/
+wget https://github.com/tatsuhiro-t/nghttp2/releases/download/v1.3.4/nghttp2-1.3.4.tar.gz
+tar -xvzf nghttp2-1.3.4.tar.gz 
+cd nghttp2-1.3.4/ 
+autoreconf -i
+automake
+autoconf 
+env OPENSSL_CFLAGS="-I /usr/local/openssl/include" OPENSSL_LIBS="-L /usr/local/openssl/lib-lssl-lcrypto"
+./configure 
+make 
+make install
+
+ccho /usr/local/lib> /etc/ld.so.conf.d/usr-local-lib.conf 
+ldconfig
+
+#install apr
+cd /usr/local/src/ 
+wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//apr/apr-1.5.2.tar.gz
+tar -xvzf apr-1.5.2.tar.gz 
+cd apr-1.5.2/ 
+./configure 
+make 
+make install
+
+#install apr-util
+cd /usr/local/src/ 
+wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//apr/apr-util-1.5.4.tar.gz
+tar -xvzf apr-util-1.5.4.tar.gz 
+cd apr-util-1.5.4/ 
+./configure --with-apr=/usr/local/apr 
+make 
+make install
+
+# install apache
+cd /usr/local/src/ 
+wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//httpd/httpd-2.4.23.tar.gz
+tar -xvzf httpd-2.4.23.tar.gz 
+cd httpd-2.4.23/
+./configure \ 
+--enable-http2 \ 
+--enable-ssl \ 
+--with-ssl = /usr/local/openssl \ 
+--enable-so \ 
+--enable-mods-shared = all 
+make 
+make install
+
+#generate ssl
+openssl genrsa 2048 > server.key
+openssl req -new -key server.key > server.csr
+openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
+mv - i server.key /usr/local/apache2/conf/ 
+mv - i server.crt /usr/local/apache2/conf/
+chmod 400 /usr/local/apache2/conf/server.key 
+chmod 400 /usr/local/apache2/conf/server.crt
+rm server.csr
 
 # get remi repos
 wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
