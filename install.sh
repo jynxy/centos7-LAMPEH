@@ -55,7 +55,7 @@ make install
 cd ..
 rpm -Uvh http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-1-13.rhel7.noarch.rpm
 sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/city-fan.org.repo
-yum --enablerepo=city-fan.org update libcurl curl
+yum -y --enablerepo=city-fan.org update libcurl curl
 
 #install apr
 cd ..
