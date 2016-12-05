@@ -45,8 +45,8 @@ cd nghttp2-1.3.4/
 autoreconf -i
 automake
 autoconf 
-export OPENSSL_CFLAGS="-I /usr/local/ssl/include/"
-export OPENSSL_LIBS="-L /usr/local/ssl/lib/ -lssl -lcrypto"
+export OPENSSL_CFLAGS="-I/usr/local/ssl/include/"
+export OPENSSL_LIBS="-L/usr/local/ssl/lib/ -lssl -lcrypto"
 ./configure 
 make 
 make install
