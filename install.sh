@@ -132,15 +132,13 @@ cd ..
 openssl genrsa 2048 > server.key
 openssl req -new -key server.key > server.csr
 openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
-mv - i server.key /usr/local/apache2/conf/ 
-mv - i server.crt /usr/local/apache2/conf/
+mv -i server.key /usr/local/apache2/conf/ 
+mv -i server.crt /usr/local/apache2/conf/
 chmod 400 /usr/local/apache2/conf/server.key 
 chmod 400 /usr/local/apache2/conf/server.crt
-rm server.csr
 
 # get remi repos
-wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
-rpm -Uvh remi-release-7.rpm
+rpm -Uvh  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
 # install mariadb 10.0
 cat <<REPO > /etc/yum.repos.d/mariadb.repo
@@ -162,9 +160,6 @@ yum install -y --enablerepo=remi-php70 php php-apcu php-fpm php-opcache php-cli 
 # varnish
 rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
 yum install -y varnish
-
-#return back to install dir
-cd "$CURRENT"
 
 # VARNISH
 cat varnish/default.vcl > /etc/varnish/default.vcl
