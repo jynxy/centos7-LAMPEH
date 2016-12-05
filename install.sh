@@ -231,4 +231,4 @@ systemctl start php-fpm.service
 systemctl start httpd.service
 #systemctl start varnish.service
 
-echo "<?php phpinfo();?>" > /var/www/html/index.php
+echo "<?php phpinfo();?>" > /usr/local/apache2/htdocs/index.php
