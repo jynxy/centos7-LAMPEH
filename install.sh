@@ -63,7 +63,8 @@ wget http://mirror.vorboss.net/apache//apr/apr-1.5.2.tar.gz
 tar -zxvf apr-1.5.2.tar.gz 
 cd apr-1.5.2/
 ./configure
-make 
+make
+make test
 make install
 
 #install apr-util
