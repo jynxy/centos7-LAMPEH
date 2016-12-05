@@ -13,10 +13,11 @@ yum install -y \
     bzip2-devel \
     libmcrypt-devel \
     libicu-devel \
-    openssl-devel \
     libtool-ltdl-devel \
     libjpeg-turbo-devel \
     libpng-devel \
+    lua-devel \
+    python-devel \
     aspell-devel \
     readline-devel \
     libcurl-devel \
@@ -28,84 +29,111 @@ yum install -y \
     nano \
     zlib-devel \
     pcre-devel \
-    libev-devel
-    
-#install openssl 1.0.2j
-cd /usr/local/src/
-wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz
-tar -xvzf openssl-1.0.2j.tar.gz
-cd openssl-1.0.2j/
-./config --prefix=/usr/local/openssl shared zlib
-make && make test && make install
+    libev-devel \
+    perl
 
-echo /usr/local/openssl/lib> /etc/ld.so.conf.d/openssl102d.conf 
-ldconfig
+mkdir sources
+
+#install openssl 1.0.2j
+cd sources/
+wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz
+tar -zxvf openssl-1.0.2j.tar.gz
+cd openssl-1.0.2j/
+./config shared zlib-dynamic
+make
+make test 
+make install
 
 # install hngttp2
-cd /usr/local/src/
+cd ..
 wget https://github.com/tatsuhiro-t/nghttp2/releases/download/v1.3.4/nghttp2-1.3.4.tar.gz
-tar -xvzf nghttp2-1.3.4.tar.gz 
-cd nghttp2-1.3.4/ 
+tar -zxvf nghttp2-1.3.4.tar.gz 
+cd nghttp2-1.3.4/
 autoreconf -i
 automake
 autoconf 
-env OPENSSL_CFLAGS="-I /usr/local/openssl/include" OPENSSL_LIBS="-L /usr/local/openssl/lib -lssl -lcrypto"
+export OPENSSL_CFLAGS="-I /usr/local/ssl/include/"
+export OPENSSL_LIBS="-L /usr/local/ssl/lib/ -lssl -lcrypto"
 ./configure 
 make 
 make install
 
-echo /usr/local/lib> /etc/ld.so.conf.d/usr-local-lib.conf 
-ldconfig
-
 #install latest curl
-cd /usr/local/src/
-wget https://curl.haxx.se/download/curl-7.51.0.tar.gz
-tar -xvzf curl-7.51.0.tar.gz
-cd curl-7.51.0/
-./configure \
---prefix=/opt/curl-ssl \
---with-ssl=/usr/local/openssl \
---enable-http \
---enable-ftp \
-LDFLAGS=-L/usr/local/openssl/lib \
-CPPFLAGS=-I/usr/local/openssl/include \
---with-nghttp2=/usr/local
-make
-make install
+cd ..
+rpm -Uvh http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-1-13.rhel7.noarch.rpm
+sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/city-fan.org.repo
+yum --enablerepo=city-fan.org update libcurl curl
 
 #install apr
-cd /usr/local/src/ 
-wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//apr/apr-1.5.2.tar.gz
-tar -xvzf apr-1.5.2.tar.gz 
-cd apr-1.5.2/ 
-./configure 
+cd ..
+wget http://mirror.vorboss.net/apache//apr/apr-1.5.2.tar.gz
+tar -zxvf apr-1.5.2.tar.gz 
+cd apr-1.5.2/
+./configure
 make 
 make install
 
 #install apr-util
-cd /usr/local/src/ 
-wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//apr/apr-util-1.5.4.tar.gz
-tar -xvzf apr-util-1.5.4.tar.gz 
-cd apr-util-1.5.4/ 
-./configure --with-apr=/usr/local/apr 
+cd ..
+wget http://mirror.vorboss.net/apache//apr/apr-util-1.5.4.tar.gz
+tar -zxvf apr-util-1.5.4.tar.gz 
+cd apr-util-1.5.4/
+./configure --with-apr=/usr/local/apr/ --with-crypto --with-openssl=/usr/local/ssl/
 make 
 make install
 
 # install apache
-cd /usr/local/src/ 
-wget http://mirrors.ukfast.co.uk/sites/ftp.apache.org//httpd/httpd-2.4.23.tar.gz
-tar -xvzf httpd-2.4.23.tar.gz 
+cd ..
+wget http://apache.mirrors.nublue.co.uk//httpd/httpd-2.4.23.tar.gz
+tar -zxvf httpd-2.4.23.tar.gz 
 cd httpd-2.4.23/
-./configure \ 
---enable-http2 \ 
---enable-ssl \ 
---with-ssl = /usr/local/openssl \ 
---enable-so \ 
---enable-mods-shared = all 
+./configure \
+   --enable-ssl \
+   --enable-so \
+   --enable-cache \
+   --enable-socache-memcache \
+   --enable-watchdog \
+   --enable-deflate \
+   --enable-proxy-html \
+   --enable-http \
+   --enable-http2 \
+   --disable-log-config \
+   --enable-log-debug \
+   --enable-log-forensic \
+   --enable-mime-magic \
+   --enable-expires \
+   --enable-remoteip \
+   --enable-proxy \
+   --enable-proxy-fcgi \
+   --enable-dav-fs \
+   --enable-vhost-alias \
+   --with-nghttp2=/usr/local/lib \
+   --enable-log-config \
+   --with-ssl=/usr/local/ssl/ \
+   --enable-file-cache \
+   --enable-cache-disk \
+   --enable-unique-id \
+   --enable-ident \
+   --enable-session-cookie \
+   --enable-session \
+   --enable-info \
+   --enable-rewrite \
+   --enable-slotmem-shm \
+   --enable-slotmem-plain \
+   --enable-lua \
+   --enable-luajit \
+   --enable-buffer \
+   --enable-cgid \
+   --enable-cgi
 make 
 make install
+mkdir /usr/local/apache2/lib
+ln -s /usr/local/ssl/lib/libcrypto.so.1.0.0 /usr/local/apache2/lib/
+ln -s /usr/local/ssl/lib/libssl.so.1.0.0 /usr/local/apache2/lib/
+ln -s /usr/local/lib/libnghttp2.so.14 /usr/local/apache2/lib/
 
 #generate ssl
+cd ..
 openssl genrsa 2048 > server.key
 openssl req -new -key server.key > server.csr
 openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
@@ -139,6 +167,9 @@ yum install -y --enablerepo=remi-php70 php php-apcu php-fpm php-opcache php-cli 
 # varnish
 rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
 yum install -y varnish
+
+#return back to install dir
+cd "$CURRENT"
 
 # VARNISH
 cat varnish/default.vcl > /etc/varnish/default.vcl
