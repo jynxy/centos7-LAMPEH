@@ -101,93 +101,93 @@ ln -s /usr/local/ssl/lib/libcrypto.so.1.0.0 /usr/local/apache2/lib/
 ln -s /usr/local/ssl/lib/libssl.so.1.0.0 /usr/local/apache2/lib/
 ln -s /usr/local/lib/libnghttp2.so.14 /usr/local/apache2/lib/
 
-#generate ssl
-cd ..
-openssl genrsa 2048 > server.key
-openssl req -new -key server.key > server.csr
-openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
-mv -i server.key /usr/local/apache2/conf/ 
-mv -i server.crt /usr/local/apache2/conf/
-chmod 400 /usr/local/apache2/conf/server.key 
-chmod 400 /usr/local/apache2/conf/server.crt
+##generate ssl
+#cd ..
+#openssl genrsa 2048 > server.key
+#openssl req -new -key server.key > server.csr
+#openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
+#mv -i server.key /usr/local/apache2/conf/ 
+#mv -i server.crt /usr/local/apache2/conf/
+#chmod 400 /usr/local/apache2/conf/server.key 
+#chmod 400 /usr/local/apache2/conf/server.crt
 
-# get remi repos
-rpm -Uvh  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+## get remi repos
+#rpm -Uvh  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
-# install mariadb 10.0
-cat <<REPO > /etc/yum.repos.d/mariadb.repo
+## install mariadb 10.0
+#cat <<REPO > /etc/yum.repos.d/mariadb.repo
 # MariaDB 10.0 CentOS repository list - created 2016-12-04 20:46 UTC
 # http://downloads.mariadb.org/mariadb/repositories/
-[mariadb]
-name = MariaDB
-baseurl = http://yum.mariadb.org/10.0/centos7-amd64
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1
-enable=1
-REPO
+#[mariadb]
+#name = MariaDB
+#baseurl = http://yum.mariadb.org/10.0/centos7-amd64
+#gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+#gpgcheck=1
+#enable=1
+#REPO
 
-yum install -y MariaDB-server MariaDB-client
+#yum install -y MariaDB-server MariaDB-client
 
 # install php
 yum install -y --enablerepo=remi-php70 php php-apcu php-fpm php-opcache php-cli php-common php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd
 
-# varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
-yum install -y varnish
+## varnish
+#rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
+#yum install -y varnish
 
-# VARNISH
-cat varnish/default.vcl > /etc/varnish/default.vcl
-cat varnish/varnish.params > /etc/varnish/varnish.params
+## VARNISH
+#cat varnish/default.vcl > /etc/varnish/default.vcl
+#cat varnish/varnish.params > /etc/varnish/varnish.params
 
-# Varnish can listen
-sed -i 's/Listen 80/Listen 8080/g' /usr/local/apache2/conf/httpd.conf
-sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /usr/local/apache2/conf/httpd.conf
+## Varnish can listen
+#sed -i 's/Listen 80/Listen 8080/g' /usr/local/apache2/conf/httpd.conf
+#sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /usr/local/apache2/conf/httpd.conf
 
-# PHP
-# The first pool
-cat php/www.conf > /etc/php-fpm.d/www.conf
+## PHP
+## The first pool
+#cat php/www.conf > /etc/php-fpm.d/www.conf
 
-#opcache settings
-cat php/opcache.ini > /etc/php.d/10-opcache.ini
+##opcache settings
+#cat php/opcache.ini > /etc/php.d/10-opcache.ini
 
-#disable mod_php
-cat php/php.conf > /usr/local/apache2/conf.d/php.conf
+##disable mod_php
+#cat php/php.conf > /usr/local/apache2/conf.d/php.conf
 
-#disable some un-needed modules.
-cat modules/00-base.conf > /usr/local/apache2/conf.modules.d/00-base.conf
-cat modules/00-dav.conf > /usr/local/apache2/conf.modules.d/00-dav.conf
-cat modules/00-lua.conf > /usr/local/apache2/conf.modules.d/00-lua.conf
-cat modules/00-mpm.conf > /usr/local/apache2/conf.modules.d/00-mpm.conf
-cat modules/00-proxy.conf > /usr/local/apache2/conf.modules.d/00-proxy.conf
-cat modules/01-cgi.conf > /usr/local/apache2/conf.modules.d/01-cgi.conf
+##disable some un-needed modules.
+#cat modules/00-base.conf > /usr/local/apache2/conf.modules.d/00-base.conf
+#cat modules/00-dav.conf > /usr/local/apache2/conf.modules.d/00-dav.conf
+#cat modules/00-lua.conf > /usr/local/apache2/conf.modules.d/00-lua.conf
+#cat modules/00-mpm.conf > /usr/local/apache2/conf.modules.d/00-mpm.conf
+#cat modules/00-proxy.conf > /usr/local/apache2/conf.modules.d/00-proxy.conf
+#cat modules/01-cgi.conf > /usr/local/apache2/conf.modules.d/01-cgi.conf
 
 # BASIC PERFORMANCE SETTINGS
-mkdir /usr/local/apache2/conf.performance.d/
-cat performance/compression.conf > /usr/local/apache2/conf.performance.d/compression.conf
-cat performance/content_transformation.conf > /usr/local/apache2/conf.performance.d/content_transformation.conf
-cat performance/etags.conf > /usr/local/apache2/conf.performance.d/etags.conf
-cat performance/expires_headers.conf > /usr/local/apache2/conf.performance.d/expires_headers.conf
-cat performance/file_concatenation.conf > /usr/local/apache2/conf.performance.d/file_concatenation.conf
-cat performance/filename-based_cache_busting.conf > /usr/local/apache2/conf.performance.d/filename-based_cache_busting.conf
+#mkdir /usr/local/apache2/conf.performance.d/
+#cat performance/compression.conf > /usr/local/apache2/conf.performance.d/compression.conf
+#cat performance/content_transformation.conf > /usr/local/apache2/conf.performance.d/content_transformation.conf
+#cat performance/etags.conf > /usr/local/apache2/conf.performance.d/etags.conf
+#cat performance/expires_headers.conf > /usr/local/apache2/conf.performance.d/expires_headers.conf
+#cat performance/file_concatenation.conf > /usr/local/apache2/conf.performance.d/file_concatenation.conf
+#cat performance/filename-based_cache_busting.conf > /usr/local/apache2/conf.performance.d/filename-based_cache_busting.conf
 
 # BASIC SECURITY SETTINGS
-mkdir /usr/local/apache2/conf.security.d/
-cat security/apache_default.conf > /usr/local/apache2/conf.security.d/apache_default.conf
+#mkdir /usr/local/apache2/conf.security.d/
+#cat security/apache_default.conf > /usr/local/apache2/conf.security.d/apache_default.conf
 
 # our domain config
-mkdir /usr/local/apache2/conf.sites.d
-echo IncludeOptional conf.sites.d/*.conf >> /usr/local/apache2/conf/httpd.conf
-echo Include /usr/local/apache2/conf/extra/httpd-ssl.conf >> /usr/local/apache2/conf/httpd.conf
-cat domains/8080-domain.conf > /usr/local/apache2/conf.sites.d/test.conf
+#mkdir /usr/local/apache2/conf.sites.d
+#echo IncludeOptional conf.sites.d/*.conf >> /usr/local/apache2/conf/httpd.conf
+#echo Include /usr/local/apache2/conf/extra/httpd-ssl.conf >> /usr/local/apache2/conf/httpd.conf
+#cat domains/8080-domain.conf > /usr/local/apache2/conf.sites.d/test.conf
 
 # our performance config
-echo IncludeOptional conf.performance.d/*.conf >> /usr/local/apache2/conf/httpd.conf
+#echo IncludeOptional conf.performance.d/*.conf >> /usr/local/apache2/conf/httpd.conf
 
 # our security config
-echo IncludeOptional conf.security.d/*.conf >> /usr/local/apache2/conf/httpd.conf
+#echo IncludeOptional conf.security.d/*.conf >> /usr/local/apache2/conf/httpd.conf
 
 # fix date timezone errors
-sed -i 's#;date.timezone =#date.timezone = "Europe/London"#g' /etc/php.ini
+#sed -i 's#;date.timezone =#date.timezone = "Europe/London"#g' /etc/php.ini
 
 # setup apache httpd
 echo pathmunge /usr/local/apache2/bin >> /etc/profile.d/httpd.sh
@@ -211,24 +211,24 @@ EOF
 systemctl daemon-reload
 
 # FIREWALL
-systemctl start firewalld.service
-systemctl enable firewalld.service
-firewall-cmd --permanent --add-port=80/tcp
-firewall-cmd --permanent --add-port=8080/tcp
-firewall-cmd --permanent --add-port=22/tcp
-systemctl restart firewalld.service
+#systemctl start firewalld.service
+#systemctl enable firewalld.service
+#firewall-cmd --permanent --add-port=80/tcp
+#firewall-cmd --permanent --add-port=8080/tcp
+#firewall-cmd --permanent --add-port=22/tcp
+#systemctl restart firewalld.service
 
 # Make sue services stay on after reboot
 
-systemctl enable httpd.service
-systemctl enable mariadb.service
-systemctl enable php-fpm.service
-systemctl enable varnish.service
+#systemctl enable httpd.service
+#systemctl enable mariadb.service
+#systemctl enable php-fpm.service
+#systemctl enable varnish.service
 
 # Start all the services we use.
 systemctl start php-fpm.service
-systemctl start mariadb.service
+#systemctl start mariadb.service
 systemctl start httpd.service
-systemctl start varnish.service
+#systemctl start varnish.service
 
 echo "<?php phpinfo();?>" > /var/www/html/index.php
