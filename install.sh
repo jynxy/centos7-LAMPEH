@@ -137,9 +137,9 @@ cat varnish/default.vcl > /etc/varnish/default.vcl
 cat varnish/varnish.params > /etc/varnish/varnish.params
 
 # Varnish can listen
-sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
+sed -i 's/Listen 80/Listen 8080/g' /usr/local/apache2/conf/httpd.conf
 
-sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /etc/httpd/conf/httpd.conf
+sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /usr/local/apache2/conf/httpd.conf
 
 # PHP
 # The first pool
@@ -174,16 +174,16 @@ cat security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.con
 
 # our domain config
 mkdir /etc/httpd/conf.sites.d
-echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
-echo Include /etc/httpd/conf/extra/httpd-ssl.conf >> /etc/httpd/conf/httpd.conf
-echo SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK >> /etc/httpd/conf/extra/httpd-ssl.conf
+echo IncludeOptional conf.sites.d/*.conf >> /usr/local/apache2/conf/httpd.conf
+echo Include /usr/local/apache2/conf/extra/httpd-ssl.conf >> /usr/local/apache2/conf/httpd.conf
+echo "SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK" >> /usr/local/apache2/conf/extra/httpd-ssl.conf
 cat domains/8080-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
 # our performance config
-echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo IncludeOptional conf.performance.d/*.conf >> /usr/local/apache2/conf/httpd.conf
 
 # our security config
-echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo IncludeOptional conf.security.d/*.conf >> /usr/local/apache2/conf/httpd.conf
 
 # fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "Europe/London"#g' /etc/php.ini
