@@ -9,6 +9,7 @@ yum -y groupinstall "base"
 
 #install needed files
 yum install -y \
+    epel-release \
     libxml2-devel \
     bzip2-devel \
     libmcrypt-devel \
@@ -21,16 +22,8 @@ yum install -y \
     aspell-devel \
     readline-devel \
     libcurl-devel \
-    nano \
     htop \
-    wget \
-    tar \
-    epel-release \
-    nano \
-    zlib-devel \
-    pcre-devel \
-    libev-devel \
-    perl
+    libev-devel
 
 mkdir sources
 
