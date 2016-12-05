@@ -83,43 +83,14 @@ wget http://apache.mirrors.nublue.co.uk//httpd/httpd-2.4.23.tar.gz
 tar -zxvf httpd-2.4.23.tar.gz 
 cd httpd-2.4.23/
 ./configure \
+   --with-ssl=/usr/local/ssl \
+   --with-pcre=/usr/bin/pcre-config \
+   --enable-unique-id \
    --enable-ssl \
    --enable-so \
-   --enable-cache \
-   --enable-socache-memcache \
-   --enable-watchdog \
-   --enable-deflate \
-   --enable-proxy-html \
-   --enable-http \
-   --enable-http2 \
-   --disable-log-config \
-   --enable-log-debug \
-   --enable-log-forensic \
-   --enable-mime-magic \
-   --enable-expires \
-   --enable-remoteip \
-   --enable-proxy \
-   --enable-proxy-fcgi \
-   --enable-dav-fs \
-   --enable-vhost-alias \
-   --with-nghttp2=/usr/local/lib \
-   --enable-log-config \
-   --with-ssl=/usr/local/ssl/ \
-   --enable-file-cache \
-   --enable-cache-disk \
-   --enable-unique-id \
-   --enable-ident \
-   --enable-session-cookie \
-   --enable-session \
-   --enable-info \
-   --enable-rewrite \
-   --enable-slotmem-shm \
-   --enable-slotmem-plain \
-   --enable-lua \
-   --enable-luajit \
-   --enable-buffer \
-   --enable-cgid \
-   --enable-cgi
+    --with-included-apr
+    --enable-http2
+
 make 
 make install
 mkdir /usr/local/apache2/lib
