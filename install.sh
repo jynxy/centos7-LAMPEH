@@ -74,6 +74,7 @@ tar -zxvf apr-util-1.5.4.tar.gz
 cd apr-util-1.5.4/
 ./configure --with-apr=/usr/local/apr/ --with-crypto --with-openssl=/usr/local/ssl/
 make 
+make test
 make install
 
 # install apache
