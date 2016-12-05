@@ -90,8 +90,9 @@ cp -r ../apr-util-1.5.4 srclib/apr-util
    --enable-unique-id \
    --enable-ssl \
    --enable-so \
-    --with-included-apr
-    --enable-http2
+   --with-mpm=event
+   --with-included-apr
+   --enable-http2
 
 make 
 make install
@@ -140,7 +141,6 @@ cat varnish/varnish.params > /etc/varnish/varnish.params
 
 # Varnish can listen
 sed -i 's/Listen 80/Listen 8080/g' /usr/local/apache2/conf/httpd.conf
-
 sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /usr/local/apache2/conf/httpd.conf
 
 # PHP
@@ -151,34 +151,34 @@ cat php/www.conf > /etc/php-fpm.d/www.conf
 cat php/opcache.ini > /etc/php.d/10-opcache.ini
 
 #disable mod_php
-cat php/php.conf > /etc/httpd/conf.d/php.conf
+cat php/php.conf > /usr/local/apache2/conf.d/php.conf
 
 #disable some un-needed modules.
-cat modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
-cat modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
-cat modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
-cat modules/00-mpm.conf > /etc/httpd/conf.modules.d/00-mpm.conf
-cat modules/00-proxy.conf > /etc/httpd/conf.modules.d/00-proxy.conf
-cat modules/01-cgi.conf > /etc/httpd/conf.modules.d/01-cgi.conf
+cat modules/00-base.conf > /usr/local/apache2/conf.modules.d/00-base.conf
+cat modules/00-dav.conf > /usr/local/apache2/conf.modules.d/00-dav.conf
+cat modules/00-lua.conf > /usr/local/apache2/conf.modules.d/00-lua.conf
+cat modules/00-mpm.conf > /usr/local/apache2/conf.modules.d/00-mpm.conf
+cat modules/00-proxy.conf > /usr/local/apache2/conf.modules.d/00-proxy.conf
+cat modules/01-cgi.conf > /usr/local/apache2/conf.modules.d/01-cgi.conf
 
 # BASIC PERFORMANCE SETTINGS
-mkdir /etc/httpd/conf.performance.d/
-cat performance/compression.conf > /etc/httpd/conf.performance.d/compression.conf
-cat performance/content_transformation.conf > /etc/httpd/conf.performance.d/content_transformation.conf
-cat performance/etags.conf > /etc/httpd/conf.performance.d/etags.conf
-cat performance/expires_headers.conf > /etc/httpd/conf.performance.d/expires_headers.conf
-cat performance/file_concatenation.conf > /etc/httpd/conf.performance.d/file_concatenation.conf
-cat performance/filename-based_cache_busting.conf > /etc/httpd/conf.performance.d/filename-based_cache_busting.conf
+mkdir /usr/local/apache2/conf.performance.d/
+cat performance/compression.conf > /usr/local/apache2/conf.performance.d/compression.conf
+cat performance/content_transformation.conf > /usr/local/apache2/conf.performance.d/content_transformation.conf
+cat performance/etags.conf > /usr/local/apache2/conf.performance.d/etags.conf
+cat performance/expires_headers.conf > /usr/local/apache2/conf.performance.d/expires_headers.conf
+cat performance/file_concatenation.conf > /usr/local/apache2/conf.performance.d/file_concatenation.conf
+cat performance/filename-based_cache_busting.conf > /usr/local/apache2/conf.performance.d/filename-based_cache_busting.conf
 
 # BASIC SECURITY SETTINGS
-mkdir /etc/httpd/conf.security.d/
-cat security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
+mkdir /usr/local/apache2/conf.security.d/
+cat security/apache_default.conf > /usr/local/apache2/conf.security.d/apache_default.conf
 
 # our domain config
-mkdir /etc/httpd/conf.sites.d
+mkdir /usr/local/apache2/conf.sites.d
 echo IncludeOptional conf.sites.d/*.conf >> /usr/local/apache2/conf/httpd.conf
 echo Include /usr/local/apache2/conf/extra/httpd-ssl.conf >> /usr/local/apache2/conf/httpd.conf
-cat domains/8080-domain.conf > /etc/httpd/conf.sites.d/test.conf
+cat domains/8080-domain.conf > /usr/local/apache2/conf.sites.d/test.conf
 
 # our performance config
 echo IncludeOptional conf.performance.d/*.conf >> /usr/local/apache2/conf/httpd.conf
@@ -188,6 +188,27 @@ echo IncludeOptional conf.security.d/*.conf >> /usr/local/apache2/conf/httpd.con
 
 # fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "Europe/London"#g' /etc/php.ini
+
+# setup apache httpd
+echo pathmunge /usr/local/apache2/bin >> /etc/profile.d/httpd.sh
+cat <<EOF > /etc/systemd/system/httpd.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/apache2/bin/apachectl -k start
+ExecReload=/usr/local/apache2/bin/apachectl -k graceful
+ExecStop=/usr/local/apache2/bin/apachectl -k graceful-stop
+PIDFile=/usr/local/apache2/logs/httpd.pid
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
 
 # FIREWALL
 systemctl start firewalld.service
