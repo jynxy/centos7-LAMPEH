@@ -32,7 +32,7 @@ cd sources/
 wget https://www.openssl.org/source/openssl-1.0.2j.tar.gz
 tar -zxvf openssl-1.0.2j.tar.gz
 cd openssl-1.0.2j/
-./config shared zlib-dynamic
+./config
 make
 make test 
 make install
