@@ -82,7 +82,7 @@ make install
 
 # install apache
 cd ..
-wget http://apache.mirrors.nublue.co.uk//httpd/httpd-2.4.23.tar.gz
+wget http://mirror.catn.com/pub/apache/httpd/httpd-2.4.23.tar.gz
 tar -zxvf httpd-2.4.23.tar.gz 
 cd httpd-2.4.23/
 cp -r ../apr-1.5.2 srclib/apr
