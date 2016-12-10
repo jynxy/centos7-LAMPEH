@@ -6,10 +6,10 @@ yum -y update
 #install dev tools
 yum -y groupinstall "Development Tools"
 yum -y groupinstall "base" 
+yum -y install epel-release
 
 #install needed files
-yum install -y \
-    epel-release \
+yum -y install \
     libxml2-devel \
     bzip2-devel \
     libmcrypt-devel \
