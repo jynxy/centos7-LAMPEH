@@ -37,6 +37,9 @@ make
 make test 
 make install
 
+mv /usr/bin/openssl /root/
+ln -s /usr/local/ssl/bin/openssl /usr/bin/openssl
+
 # install hngttp2
 cd ..
 wget https://github.com/tatsuhiro-t/nghttp2/releases/download/v1.3.4/nghttp2-1.3.4.tar.gz
