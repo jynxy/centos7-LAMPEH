@@ -40,7 +40,7 @@ make install
 mv /usr/bin/openssl /root/
 ln -s /usr/local/ssl/bin/openssl /usr/bin/openssl
 
-# install hngttp2
+# install nghttp2
 cd ..
 wget https://github.com/tatsuhiro-t/nghttp2/releases/download/v1.3.4/nghttp2-1.3.4.tar.gz
 tar -zxvf nghttp2-1.3.4.tar.gz 
@@ -93,8 +93,8 @@ cp -r ../apr-util-1.5.4 srclib/apr-util
    --enable-unique-id \
    --enable-ssl \
    --enable-so \
-   --with-mpm=event
-   --with-included-apr
+   --with-mpm=event \
+   --with-included-apr \
    --enable-http2
 
 make 
@@ -117,6 +117,9 @@ ln -s /usr/local/lib/libnghttp2.so.14 /usr/local/apache2/lib/
 ## get remi repos
 rpm -Uvh  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
+# install php
+yum install -y --enablerepo=remi-php70 php php-apcu php-fpm php-opcache php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd php-imap
+
 ## install mariadb 10.0
 #cat <<REPO > /etc/yum.repos.d/mariadb.repo
 # MariaDB 10.0 CentOS repository list - created 2016-12-04 20:46 UTC
@@ -131,19 +134,7 @@ rpm -Uvh  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
 #yum install -y MariaDB-server MariaDB-client
 
-# install php
-yum install -y --enablerepo=remi-php70 php php-apcu php-fpm php-opcache php-cli php-common php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd
 
-## varnish
-#rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
-#yum install -y varnish
-
-## VARNISH
-#cat varnish/default.vcl > /etc/varnish/default.vcl
-#cat varnish/varnish.params > /etc/varnish/varnish.params
-
-## Varnish can listen
-#sed -i 's/Listen 80/Listen 8080/g' /usr/local/apache2/conf/httpd.conf
 #sed -i 's/SSLProtocol all -SSLv3/SSLProtocol -All +TLSv1 +TLSv1.1 +TLSv1.2/g' /usr/local/apache2/conf/httpd.conf
 
 ## PHP
